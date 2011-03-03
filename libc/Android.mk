@@ -409,7 +409,7 @@ libc_common_src_files += \
 	arch-x86/string/memset_wrapper.S \
 	arch-x86/string/strcmp_wrapper.S \
 	arch-x86/string/strncmp_wrapper.S \
-	arch-x86/string/strlen_wrapper.S \
+	arch-x86/string/strlen.S \
 	string/strcpy.c \
 	bionic/pthread-atfork.c \
 	bionic/pthread-rwlocks.c \
@@ -506,6 +506,9 @@ ifeq ($(TARGET_ARCH),arm)
   ifeq ($(ARCH_ARM_HAVE_TLS_REGISTER),true)
     libc_common_cflags += -DHAVE_ARM_TLS_REGISTER
   endif
+  ifeq ($(TARGET_HAVE_TEGRA_ERRATA_657451),true)
+    libc_common_cflags += -DHAVE_TEGRA_ERRATA_657451
+  endif
 else # !arm
   libc_crt_target_cflags :=
 endif # !arm
@@ -521,6 +524,10 @@ endif
 # crtbegin_xxx.S and crtend_xxx.S
 #
 libc_crt_target_cflags += -I$(LOCAL_PATH)/private
+
+ifeq ($(BOARD_USE_NASTY_PTHREAD_CREATE_HACK),true)
+  libc_common_cflags += -DNASTY_PTHREAD_CREATE_HACK
+endif
 
 # Define some common includes
 # ========================================================
