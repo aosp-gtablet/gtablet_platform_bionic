@@ -103,7 +103,7 @@ typedef volatile int  pthread_once_t;
 /*
  * Prototypes
  */
-#if __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -233,7 +233,7 @@ typedef struct {
     void*            reserved[4];  /* for future extensibility */
 } pthread_rwlock_t;
 
-#define PTHREAD_RWLOCK_INITIALIZER  { PTHREAD_MUTEX_INITIALIZER, 0, NULL, 0, 0 }
+#define PTHREAD_RWLOCK_INITIALIZER  { PTHREAD_MUTEX_INITIALIZER, PTHREAD_COND_INITIALIZER, 0, 0, 0, 0, { NULL, NULL, NULL, NULL } }
 
 int pthread_rwlockattr_init(pthread_rwlockattr_t *attr);
 int pthread_rwlockattr_destroy(pthread_rwlockattr_t *attr);
@@ -302,7 +302,7 @@ extern void  __pthread_cleanup_pop(__pthread_cleanup_t*  c,
         __pthread_cleanup_pop( &__cleanup, (execute)); \
     } while (0);
 
-#if __cplusplus
+#ifdef __cplusplus
 } /* extern "C" */
 #endif
 
