@@ -360,10 +360,10 @@ libc_common_src_files += \
 	arch-arm/bionic/sigsetjmp.S \
 	arch-arm/bionic/strlen.c.arm \
 	arch-arm/bionic/strcpy.S \
+	arch-arm/bionic/strcmp.S \
 	arch-arm/bionic/syscall.S \
 	string/memmove.c.arm \
 	string/bcopy.c \
-	string/strcmp.c \
 	string/strncmp.c \
 	unistd/socketcalls.c
 
@@ -409,7 +409,7 @@ libc_common_src_files += \
 	arch-x86/string/memset_wrapper.S \
 	arch-x86/string/strcmp_wrapper.S \
 	arch-x86/string/strncmp_wrapper.S \
-	arch-x86/string/strlen.S \
+	arch-x86/string/strlen_wrapper.S \
 	string/strcpy.c \
 	bionic/pthread-atfork.c \
 	bionic/pthread-rwlocks.c \
@@ -525,6 +525,10 @@ endif
 #
 libc_crt_target_cflags += -I$(LOCAL_PATH)/private
 
+ifeq ($(TARGET_ARCH),arm)
+libc_crt_target_cflags += -DCRT_LEGACY_WORKAROUND
+endif
+
 ifeq ($(BOARD_USE_NASTY_PTHREAD_CREATE_HACK),true)
   libc_common_cflags += -DNASTY_PTHREAD_CREATE_HACK
 endif
@@ -560,7 +564,7 @@ ifneq ($(filter arm x86,$(TARGET_ARCH)),)
 GEN := $(TARGET_OUT_STATIC_LIBRARIES)/crtbegin_so.o
 $(GEN): $(LOCAL_PATH)/arch-$(TARGET_ARCH)/bionic/crtbegin_so.S
 	@mkdir -p $(dir $@)
-	$(TARGET_CC) $(libc_crt_target_cflags) -o $@ -c $<
+	$(TARGET_CC) $(libc_crt_target_cflags) -fPIC -o $@ -c $<
 ALL_GENERATED_SOURCES += $(GEN)
 
 GEN := $(TARGET_OUT_STATIC_LIBRARIES)/crtend_so.o
@@ -604,6 +608,9 @@ include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(libc_common_src_files)
 LOCAL_CFLAGS := $(libc_common_cflags)
+ifeq ($(TARGET_ARCH),arm)
+LOCAL_CFLAGS += -DCRT_LEGACY_WORKAROUND
+endif
 LOCAL_C_INCLUDES := $(libc_common_c_includes)
 LOCAL_MODULE := libc_common
 LOCAL_SYSTEM_SHARED_LIBRARIES :=
